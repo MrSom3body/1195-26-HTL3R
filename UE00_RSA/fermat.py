@@ -44,17 +44,11 @@ if __name__ == "__main__":
 
     doctest.testmod()
 
-    print_fermat(2)
-    print_fermat(3)
-    print_fermat(5)
-    print_fermat(7)
-    print_fermat(11)
-    print_fermat(997)
+    for i in [2, 3, 5, 7, 11, 997, 9, 15, 21]:
+        print_fermat(i)
 
-    print_fermat(9)
-    print_fermat(15)
-    print_fermat(21)
     for i in range(551, 570):
         print_fermat(i)
-    print_fermat(6601)
-    print_fermat(8911)
+
+    for i in [6601, 8911]:
+        print_fermat(i)
