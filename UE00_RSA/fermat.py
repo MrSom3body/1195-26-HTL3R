@@ -15,6 +15,8 @@ def fermat(p: int) -> Counter:
     >>> c = fermat(15); c.most_common()
     [(1, 4), (4, 4), (9, 2), (10, 2), (6, 2)]
     """
+    if p < 2:
+        raise ValueError("p must be greater than 1")
     fermat_list: list[int] = []
     for a in range(1, p):
         fermat_list.append(pow(a, p - 1, p))
