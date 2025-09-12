@@ -2,6 +2,8 @@ __author__ = "Karun Sandhu"
 
 from random import randint
 
+from UE00_RSA import PRIMES
+
 
 def is_prime_miller_rabin(n: int, k: int) -> bool:
     """
@@ -51,6 +53,29 @@ def is_prime_miller_rabin(n: int, k: int) -> bool:
             return False
 
     return True
+
+
+def is_prime(n: int) -> bool:
+    """
+    Determines whether a given number is prime.
+
+    This function first checks if the number is in a predefined list of small prime numbers (PRIMES).
+    If the number is not in the list, it uses the Miller-Rabin primality test to determine primality.
+
+    :param n: the number to check for primality.
+    :return: True if the number is prime, False otherwise.
+
+    >>> is_prime(2)
+    True
+    >>> is_prime(69)
+    False
+    >>> is_prime(97)
+    True
+    """
+    if n in PRIMES:
+        return True
+    else:
+        return is_prime_miller_rabin(n, k=200)
 
 
 if __name__ == "__main__":
