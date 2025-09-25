@@ -1,6 +1,6 @@
 __author__ = "Karun Sandhu"
 
-from random import getrandbits, randint
+import random
 
 from UE00_RSA import PRIMES
 
@@ -30,6 +30,8 @@ def is_prime_miller_rabin(n: int, k: int) -> bool:
     if k <= 0:
         raise ValueError("k must be at least 1")
 
+    rnd = random.SystemRandom()
+
     d = n - 1
     s = 0
     while d % 2 == 0:
@@ -37,7 +39,7 @@ def is_prime_miller_rabin(n: int, k: int) -> bool:
         s += 1
 
     for _ in range(k):
-        a = randint(2, n - 2)
+        a = rnd.randint(2, n - 2)
         x = pow(a, d, n)
 
         if x == 1 or x == n - 1:
@@ -79,7 +81,8 @@ def is_prime(n: int) -> bool:
 
 
 def _get_candidate(bits: int) -> int:
-    candidate = getrandbits(bits)
+    rnd = random.SystemRandom()
+    candidate = rnd.getrandbits(bits)
     candidate |= 1 << (bits - 1)
     candidate |= 1
     return candidate
