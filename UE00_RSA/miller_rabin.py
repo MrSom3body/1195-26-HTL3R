@@ -72,8 +72,8 @@ def is_prime(n: int) -> bool:
     >>> is_prime(97)
     True
     """
-    if n in PRIMES:
-        return True
+    if n <= PRIMES[-1]:
+        return n in PRIMES
     else:
         return is_prime_miller_rabin(n, k=200)
 
