@@ -1,6 +1,6 @@
 __author__ = "Karun Sandhu"
 
-from random import randint
+from random import getrandbits, randint
 
 from UE00_RSA import PRIMES
 
@@ -76,6 +76,34 @@ def is_prime(n: int) -> bool:
         return n in PRIMES
     else:
         return is_prime_miller_rabin(n, k=200)
+
+
+def _get_candidate(bits: int) -> int:
+    candidate = getrandbits(bits)
+    candidate |= 1 << (bits - 1)
+    candidate |= 1
+    return candidate
+
+
+def generate_prime(bits: int) -> int:
+    """
+    Generates a prime number with a certain number of bits.
+
+    :param bits: number of bits
+    :return: a prime number with the given number of bits
+
+    >>> generate_prime(2) in [2, 3]
+    True
+    >>> generate_prime(3) in [5, 7]
+    True
+    >>> generate_prime(4) in [11, 13, 17, 19]
+    True
+    """
+    assert bits >= 2, "Number of bits must be at least 2"
+    candidate = _get_candidate(bits)
+    while not is_prime(candidate):
+        candidate = _get_candidate(bits)
+    return candidate
 
 
 if __name__ == "__main__":
