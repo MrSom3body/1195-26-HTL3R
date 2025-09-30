@@ -102,7 +102,9 @@ def generate_prime(bits: int) -> int:
     >>> generate_prime(4) in [11, 13, 17, 19]
     True
     """
-    assert bits >= 2, "Number of bits must be at least 2"
+    if bits < 2:
+        raise ValueError("Number of bits must be at least 2")
+
     candidate = _get_candidate(bits)
     while not is_prime(candidate):
         candidate = _get_candidate(bits)
