@@ -1,7 +1,9 @@
 __author__ = "Karun Sandhu"
 
 
+import argparse
 import math
+from typing import Generator
 from UE00_RSA.miller_rabin import generate_prime
 from random import SystemRandom
 
@@ -50,6 +52,29 @@ def generate_keys(
     d = pow(e, -1, phi)
 
     return (e, n, number_of_bits), (d, n, number_of_bits)
+
+
+def file2ints(filename: str, number_of_bytes: int) -> Generator[int]:
+    """
+    Reads a binary file and converts its contents into a list of integers, where
+    each integer represents a block of bytes of the specified size.
+
+    :param filename: The path to the binary file to read.
+    :param number_of_bytes: The number of bytes per block to convert into an integer.
+    """
+    with open(filename, "rb") as f:
+        while block := f.read(number_of_bytes):
+            yield int.from_bytes(block, "big")
+
+
+def ints2file(ints: list[int], filename: str, number_of_bytes: int) -> None:
+    """
+    Writes a list of integers to a binary file, converting each integer back into
+    its byte representation.
+    """
+    with open(filename, "wb") as f:
+        for i in ints:
+            f.write(i.to_bytes(number_of_bytes, "big"))
 
 
 if __name__ == "__main__":
