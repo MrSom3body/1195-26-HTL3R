@@ -77,6 +77,19 @@ def ints2file(ints: list[int], filename: str, number_of_bytes: int) -> None:
             f.write(i.to_bytes(number_of_bytes, "big"))
 
 
+def save_keys(key_length: int) -> None:
+    """
+    Saves the public and private keys to files named 'public.key' and 'private.key
+    """
+    public, private = generate_keys(key_length)
+
+    with open(f"rsa{key_length}", "w") as f:
+        f.write(f"{public[0]}\n{public[1]}")
+
+    with open(f"rsa{key_length}.pub", "w") as f:
+        f.write(f"{private[0]}\n{private[1]}")
+
+
 if __name__ == "__main__":
     import doctest
 
@@ -102,3 +115,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if args.keygen:
+        save_keys(args.keygen)
+        exit()
