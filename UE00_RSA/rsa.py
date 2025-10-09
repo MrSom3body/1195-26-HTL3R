@@ -81,3 +81,24 @@ if __name__ == "__main__":
     import doctest
 
     _ = doctest.testmod()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-v", "--verbosity", help="increase output verbosity", action="store_true"
+    )
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "-k",
+        "--keygen",
+        metavar="KEY_LENGTH",
+        help="generate new keys with the given length",
+        type=int,
+    )
+    group.add_argument(
+        "-e", "--encrypt", metavar="FILE", help="file to encrypt", type=str
+    )
+    group.add_argument(
+        "-d", "--decrypt", metavar="FILE", help="file to decrypt", type=str
+    )
+
+    args = parser.parse_args()
