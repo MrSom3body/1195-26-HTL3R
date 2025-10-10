@@ -2,11 +2,15 @@ __author__ = "Karun Sandhu"
 
 
 import argparse
+import logging
 import math
 from pathlib import Path
-from typing import Generator
-from UE00_RSA.miller_rabin import generate_prime
 from random import SystemRandom
+from typing import Generator
+
+from UE00_RSA.miller_rabin import generate_prime
+
+logger = logging.getLogger()
 
 
 def generate_keys(
@@ -78,19 +82,28 @@ def ints2file(ints: list[int], filename: str, number_of_bytes: int) -> None:
     with open(filename, "wb") as f:
         for i in ints:
             f.write(i.to_bytes(number_of_bytes, "big"))
+    logger.info("Wrote %d blocks to %s", len(ints), filename)
 
 
 def save_keys(key_length: int) -> None:
     """
     Saves the public and private keys to files named 'public.key' and 'private.key
     """
+    logger.info("Generating %d-bit RSA keys...", key_length)
     public, private = generate_keys(key_length)
+    logger.debug("Public key: %s", public)
+    logger.debug("Private key: %s", private)
 
-    with open(f"id_rsa{key_length}.pub", "w") as f:
+    pub_file = f"id_rsa{key_length}.pub"
+    priv_file = f"id_rsa{key_length}"
+
+    with open(pub_file, "w") as f:
         f.write(f"{public[0]}\n{public[1]}")
+        logger.info("Saved public key to %s", pub_file)
 
-    with open(f"id_rsa{key_length}", "w") as f:
+    with open(priv_file, "w") as f:
         f.write(f"{private[0]}\n{private[1]}")
+        logger.info("Saved private key to %s", priv_file)
 
 
 def encrypt_file(filename: str) -> None:
@@ -98,6 +111,8 @@ def encrypt_file(filename: str) -> None:
     Encrypts a file with the first file it finds named id_rsa*.pub
     :param filename: The path to the file to encrypt
     """
+    logger.info("Encrypting file: %s", filename)
+
     keyfile = next(
         (
             f"id_rsa{bits}.pub"
@@ -107,23 +122,29 @@ def encrypt_file(filename: str) -> None:
         None,
     )
     if keyfile is None:
+        logger.error("No public key file found.")
         raise FileNotFoundError("No public key file found.")
 
     with open(keyfile, "r") as f:
         e = int(f.readline().strip())
         n = int(f.readline().strip())
         number_of_bits = n.bit_length()
+    logger.info("Using public key from %s", keyfile)
 
     integer_blocks: list[int] = list(
         file2ints(filename, number_of_bytes=(number_of_bits - 1) // 8)
     )
+    logger.debug("Read %d blocks from %s", len(integer_blocks), filename)
+
     encrypted_blocks: list[int] = [pow(block, e, n) for block in integer_blocks]
+    logger.debug("Encrypted all blocks.")
 
     ints2file(
         encrypted_blocks,
         f"{filename}.enc",
         number_of_bytes=(number_of_bits + 7) // 8,
     )
+    logger.info("Encryption complete: %s.enc", filename)
 
 
 def decrypt_file(filename: str) -> None:
@@ -140,23 +161,29 @@ def decrypt_file(filename: str) -> None:
         None,
     )
     if keyfile is None:
+        logger.error("No private key file found.")
         raise FileNotFoundError("No private key file found.")
 
     with open(keyfile, "r") as f:
         d = int(f.readline().strip())
         n = int(f.readline().strip())
         number_of_bits = n.bit_length()
+    logger.info("Using private key from %s", keyfile)
 
     integer_blocks = list(
         file2ints(filename, number_of_bytes=(number_of_bits + 7) // 8)
     )
+    logger.debug("Read %d encrypted blocks from %s", len(integer_blocks), filename)
+
     decrypted_blocks = [pow(block, d, n) for block in integer_blocks]
+    logger.debug("Decrypted all blocks.")
 
     ints2file(
         decrypted_blocks,
         f"{filename}.dec",
         number_of_bytes=(number_of_bits - 1) // 8,
     )
+    logger.info("Decryption complete: %s.dec", filename)
 
 
 if __name__ == "__main__":
@@ -166,7 +193,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-v", "--verbosity", help="increase output verbosity", action="store_true"
+        "-l",
+        "--loglevel",
+        default="WARNING",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Set the logging level",
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -184,6 +215,12 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if args.loglevel:
+        logging.basicConfig(
+            format="%(asctime)s - %(levelname)s - %(message)s", level=args.loglevel
+        )
+        logger.setLevel(args.loglevel)
 
     if args.keygen:
         save_keys(args.keygen)
