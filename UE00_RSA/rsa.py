@@ -3,6 +3,7 @@ __author__ = "Karun Sandhu"
 
 import argparse
 import math
+from pathlib import Path
 from typing import Generator
 from UE00_RSA.miller_rabin import generate_prime
 from random import SystemRandom
@@ -92,6 +93,72 @@ def save_keys(key_length: int) -> None:
         f.write(f"{private[0]}\n{private[1]}")
 
 
+def encrypt_file(filename: str) -> None:
+    """
+    Encrypts a file with the first file it finds named id_rsa*.pub
+    :param filename: The path to the file to encrypt
+    """
+    keyfile = next(
+        (
+            f"id_rsa{bits}.pub"
+            for bits in (2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2)
+            if Path(f"id_rsa{bits}.pub").is_file()
+        ),
+        None,
+    )
+    if keyfile is None:
+        raise FileNotFoundError("No public key file found.")
+
+    with open(keyfile, "r") as f:
+        e = int(f.readline().strip())
+        n = int(f.readline().strip())
+        number_of_bits = n.bit_length()
+
+    integer_blocks: list[int] = list(
+        file2ints(filename, number_of_bytes=(number_of_bits - 1) // 8)
+    )
+    encrypted_blocks: list[int] = [pow(block, e, n) for block in integer_blocks]
+
+    ints2file(
+        encrypted_blocks,
+        f"{filename}.enc",
+        number_of_bytes=(number_of_bits + 7) // 8,
+    )
+
+
+def decrypt_file(filename: str) -> None:
+    """
+    Decrypts a file with the first file it finds named id_rsa*
+    :param filename: The path to the file to decrypt
+    """
+    keyfile = next(
+        (
+            f"id_rsa{bits}"
+            for bits in (2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2)
+            if Path(f"id_rsa{bits}").is_file()
+        ),
+        None,
+    )
+    if keyfile is None:
+        raise FileNotFoundError("No private key file found.")
+
+    with open(keyfile, "r") as f:
+        d = int(f.readline().strip())
+        n = int(f.readline().strip())
+        number_of_bits = n.bit_length()
+
+    integer_blocks = list(
+        file2ints(filename, number_of_bytes=(number_of_bits + 7) // 8)
+    )
+    decrypted_blocks = [pow(block, d, n) for block in integer_blocks]
+
+    ints2file(
+        decrypted_blocks,
+        f"{filename}.dec",
+        number_of_bytes=(number_of_bits - 1) // 8,
+    )
+
+
 if __name__ == "__main__":
     import doctest
 
@@ -120,4 +187,12 @@ if __name__ == "__main__":
 
     if args.keygen:
         save_keys(args.keygen)
+        exit()
+
+    if args.encrypt:
+        encrypt_file(args.encrypt)
+        exit()
+
+    if args.decrypt:
+        decrypt_file(args.decrypt)
         exit()
