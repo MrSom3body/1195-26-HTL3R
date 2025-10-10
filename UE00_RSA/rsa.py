@@ -85,10 +85,10 @@ def save_keys(key_length: int) -> None:
     """
     public, private = generate_keys(key_length)
 
-    with open(f"rsa{key_length}", "w") as f:
+    with open(f"id_rsa{key_length}.pub", "w") as f:
         f.write(f"{public[0]}\n{public[1]}")
 
-    with open(f"rsa{key_length}.pub", "w") as f:
+    with open(f"id_rsa{key_length}", "w") as f:
         f.write(f"{private[0]}\n{private[1]}")
 
 
