@@ -71,6 +71,8 @@ def ints2file(ints: list[int], filename: str, number_of_bytes: int) -> None:
     """
     Writes a list of integers to a binary file, converting each integer back into
     its byte representation.
+
+    :param strip_padding: if True, remove trailing zero bytes from each block (for decryption)
     """
     with open(filename, "wb") as f:
         for i in ints:
