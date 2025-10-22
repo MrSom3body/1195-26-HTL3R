@@ -1,12 +1,15 @@
 __author__ = "Karun Sandhu"
 
 import argparse
+import logging
 import subprocess
 from collections import Counter
 from datetime import datetime, timedelta
 
 import dateutil
 import matplotlib.pyplot as plt
+
+logger = logging.getLogger()
 
 
 def get_commits(author: str = "", directory: str = ".") -> list[datetime]:
@@ -16,6 +19,7 @@ def get_commits(author: str = "", directory: str = ".") -> list[datetime]:
     :param directory: the directory of the git repository
     :return: a list of datetime objects of commits
     """
+    logger.debug(f"Fetching commits from directory '{directory}' for author '{author}'")
     cmd = [
         "git",
         "-C",
@@ -27,8 +31,13 @@ def get_commits(author: str = "", directory: str = ".") -> list[datetime]:
         "--pretty=format:%ad",
         "--date=rfc2822",
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Git command failed: {e}")
+        return []
     commits = result.stdout.strip().split("\n")
+    logger.info(f"Retrieved {len(commits)} commits")
     return [dateutil.parser.parse(commit) for commit in commits if commit]
 
 
@@ -38,19 +47,21 @@ def generate_git_graph(author: str, commits: list[datetime], filename: str) -> N
     :param commits: a list of datetime objects of commits
     :param filename: the filename of the plot
     """
-    if not commits:
-        print("No commits found — nothing to plot.")
-        return
+    if author != "":
+        logger.debug(f"Generating git graph for author '{author}'")
+    else:
+        logger.debug("Generating git graph for ever author")
 
     now = datetime.now(dateutil.tz.tzlocal())
     week_ago = now - timedelta(days=7)
     commits = [c for c in commits if week_ago <= c <= now]
 
     if not commits:
-        print("No commits in the last 7 days.")
+        logger.warning("No commits in the last 7 days.")
         return
 
     commit_counts = Counter((c.weekday(), c.hour) for c in commits)
+    logger.debug(f"Commit count breakdown: {commit_counts}")
 
     today = now.weekday()  # Monday=0 ... Sunday=6
     weekday_order = [(today - i) % 7 for i in range(6, -1, -1)]
@@ -90,8 +101,14 @@ def generate_git_graph(author: str, commits: list[datetime], filename: str) -> N
     # padding
     ax.set_xlim(-1, 24)
     ax.set_ylim(-0.5, 6.5)
-    plt.savefig(filename, dpi=150)
-    plt.close()
+
+    try:
+        plt.savefig(filename, dpi=150)
+        logger.info(f"Graph saved successfully as '{filename}'")
+    except Exception as e:
+        logger.error(f"Failed to save graph: {e}")
+    finally:
+        plt.close()
 
 
 if __name__ == "__main__":
@@ -126,6 +143,12 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    if args.loglevel:
+        logging.basicConfig(
+            format="%(asctime)s - %(levelname)s - %(message)s", level=args.loglevel
+        )
+        logger.setLevel(args.loglevel)
 
     commits = get_commits(author=args.author, directory=args.directory)
     generate_git_graph(author=args.author, commits=commits, filename=args.filename)
