@@ -37,8 +37,8 @@ def my_pow(x: int, b: int, n: int | None = None) -> float:
                 raise ValueError(
                     "No modular inverse exists for given base and modulus."
                 )
-            inv = pow(x, -1, n)
-            result = my_pow(inv, -b, n)
+            inv = my_pow(x, -1, n)
+            result = my_pow(int(inv), -b, n)
     elif b % 2 == 0:
         half_pow = my_pow(x, b // 2, n)
         result = half_pow * half_pow
