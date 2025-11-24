@@ -5,7 +5,9 @@ from collections import deque
 
 
 def dfs(maze: list[str], start: tuple[int, int]) -> list[tuple[int, int]] | None:
-    stack: list[tuple[tuple[int, int], list[tuple[int, int]]]] = [(start, [start])]
+    stack: deque[tuple[tuple[int, int], list[tuple[int, int]]]] = deque(
+        [(start, [start])]
+    )
     visited: set[tuple[int, int]] = set()
 
     while stack:
