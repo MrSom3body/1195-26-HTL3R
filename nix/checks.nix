@@ -21,6 +21,9 @@
           no-inline-html = false;
         };
       };
+
+      # go
+      gofmt.enable = true;
     };
   };
 }

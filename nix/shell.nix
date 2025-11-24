@@ -7,12 +7,16 @@
 {
   default = pkgs.mkShell {
     packages =
-      builtins.attrValues {
-        inherit (pkgs)
-          just
-          uv
-          ;
-      }
+      (with pkgs; [
+        just
+        # python
+        uv
+        # go
+        go
+        gopls
+        gotools
+        go-tools
+      ])
       ++ [ python ];
 
     env = {
