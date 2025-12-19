@@ -118,14 +118,24 @@ def deep_sum(l: list[NestedIntList]) -> int:
     return sum
 
 
-def deep_sum_with_max_depth(myList: list[NestedIntList]) -> tuple[int, int]:
+def deep_sum_with_max_depth(l: list[NestedIntList]) -> tuple[int, int]:
     """
     Computes both the sum and the maximum depth in a single pass.
 
     :param myList: An arbitrarily nested list of integers.
     :return: A tuple containing ``(sum, max_depth)``.
     """
-    return (0, 0)
+    sum = 0
+    depth = 0
+    for item in l:
+        if isinstance(item, list):
+            sub_sum, sub_depth = deep_sum_with_max_depth(item)
+            sum += sub_sum
+            if sub_depth > depth:
+                depth = sub_depth
+        elif isinstance(item, int):
+            sum += item
+    return (sum, depth + 1)
 
 
 def min_path_length(graph: dict[str, list[str]], start: str, end: str) -> int | None:
