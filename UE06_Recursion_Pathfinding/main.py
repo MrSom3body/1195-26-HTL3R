@@ -104,6 +104,9 @@ def max_depth(l: list[NestedIntList]) -> int:
     :param l: An arbitrarily nested list of integers.
     :return: The maximum depth
     """
+    if not l:
+        return 0
+
     max = 0
     for item in l:
         if isinstance(item, list):
@@ -119,6 +122,9 @@ def deep_sum(l: list[NestedIntList]) -> int:
     :param l: An arbitrarily nested list of integers.
     :return: The sum of all elements.
     """
+    if not l:
+        return 0
+
     sum = 0
     for item in l:
         if isinstance(item, list):
@@ -135,6 +141,9 @@ def deep_sum_with_max_depth(l: list[NestedIntList]) -> tuple[int, int]:
     :param myList: An arbitrarily nested list of integers.
     :return: A tuple containing ``(sum, max_depth)``.
     """
+    if not l:
+        return (0, 0)
+
     sum = 0
     depth = 0
     for item in l:
