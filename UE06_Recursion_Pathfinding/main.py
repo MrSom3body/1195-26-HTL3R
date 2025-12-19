@@ -1,3 +1,4 @@
+from collections import deque
 from functools import cache
 from typing import TypeAlias
 
@@ -147,7 +148,7 @@ def deep_sum_with_max_depth(l: list[NestedIntList]) -> tuple[int, int]:
     return (sum, depth + 1)
 
 
-def min_path_length(graph: dict[str, list[str]], start: str, end: str) -> int | None:
+def min_path_length(graph: dict[str, list[str]], start: str, end: str) -> int:
     """
     Finds the shortest path length between two nodes using BFS.
 
@@ -156,7 +157,21 @@ def min_path_length(graph: dict[str, list[str]], start: str, end: str) -> int | 
     :param end: The identifier of the end node.
     :return: The number of steps to reach ``end``, or -1 if no path exists.
     """
-    return None
+    queue: deque[tuple[str, int]] = deque([(start, 0)])
+    visited: set[str] = {start}
+
+    while queue:
+        current_node, distance = queue.popleft()
+
+        for neighbor in graph.get(current_node, []):
+            if neighbor == end:
+                return distance + 1
+
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((neighbor, distance + 1))
+
+    return -1
 
 
 if __name__ == "__main__":
