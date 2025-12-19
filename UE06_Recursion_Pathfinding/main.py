@@ -73,18 +73,27 @@ graph_no_path = {
 NestedIntList: TypeAlias = int | list["NestedIntList"]
 
 
+@cache
 def muenzen(total: int, index: int) -> int:
     """
     Calculates the number of ways to form ``total`` using ``my_coins``.
 
-    Uses recursion with memoization. Ideally, ``my_coins`` should be sorted
-    descendingly for optimization.
+    Uses recursion with memoization. Ideally, ``my_coins`` should be sorted descendingly for optimization.
 
     :param total: The target amount to reach.
     :param index: The current index in ``my_coins`` being considered.
     :return: The number of possible combinations.
     """
-    return 0
+    if total == 0:
+        return 1
+
+    if total < 0 or index >= len(my_coins):
+        return 0
+
+    use_coin = muenzen(total - my_coins[index], index)
+    skip_coin = muenzen(total, index + 1)
+
+    return use_coin + skip_coin
 
 
 def max_depth(l: list[NestedIntList]) -> int:
