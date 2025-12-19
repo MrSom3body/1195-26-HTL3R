@@ -106,10 +106,16 @@ def deep_sum(l: list[NestedIntList]) -> int:
     """
     Calculates the sum of all integers in a nested list recursively.
 
-    :param myList: An arbitrarily nested list of integers.
+    :param l: An arbitrarily nested list of integers.
     :return: The sum of all elements.
     """
-    return 0
+    sum = 0
+    for item in l:
+        if isinstance(item, list):
+            sum += deep_sum(item)
+        elif isinstance(item, int):
+            sum += item
+    return sum
 
 
 def deep_sum_with_max_depth(myList: list[NestedIntList]) -> tuple[int, int]:
