@@ -91,10 +91,15 @@ def max_depth(l: list[NestedIntList]) -> int:
     """
     Determines the maximum nesting depth of a list recursively.
 
-    :param myList: An arbitrarily nested list of integers.
-    :return: The maximum depth (e.g., ``[]`` -> 0, ``[1]`` -> 1).
+    :param l: An arbitrarily nested list of integers.
+    :return: The maximum depth
     """
-    return 0
+    max = 0
+    for item in l:
+        if isinstance(item, list):
+            if max_depth(item) > max:
+                max = max_depth(item)
+    return max + 1
 
 
 def deep_sum(l: list[NestedIntList]) -> int:
